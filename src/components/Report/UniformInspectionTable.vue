@@ -26,6 +26,7 @@
                         <th class="text-center max-[509px]:hidden">จำนวนทั้งหมด</th>
                         <th class="text-center max-[509px]:hidden">ผ่าน</th>
                         <th class="text-center max-[509px]:hidden">ไม่ผ่าน</th>
+                        <th class="text-center max-[509px]:hidden">ไม่ได้มาตรวจ</th>
                         <th class="text-center">จัดการ</th>
                     </tr>
                 </thead>
@@ -37,7 +38,12 @@
                         <td>{{ formatThaiDate(item.date) }}</td>
                         <td class="text-center max-[509px]:hidden">{{ item.summary?.total ?? 0 }}</td>
                         <td class="text-center max-[509px]:hidden">{{ item.summary?.pass ?? 0 }}</td>
-                        <td class="text-center max-[509px]:hidden">{{ item.summary?.not_pass ?? 0 }}</td>
+                        <td class="text-center max-[509px]:hidden text-error font-semibold">
+                            {{ Math.max(0, (item.summary?.not_pass ?? 0) - (item.summary?.no_show ?? 0)) }}
+                        </td>
+                        <td class="text-center max-[509px]:hidden text-warning font-semibold">
+                            {{ item.summary?.no_show ?? 0 }}
+                        </td>
                         <td class="text-center">
                             <div class="flex items-center justify-center gap-2">
                                 <button @click="openDetail(item)" class="bg-transparent border-none shadow-none p-0"
@@ -240,10 +246,11 @@ const exportUniformInspectionToExcel = async () => {
         worksheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
         worksheet.getCell('A1').font = { bold: true };
 
-        const headers = ['ลำดับ', 'ชั้น', 'ห้อง', 'ผู้ตรวจ', 'วันที่', 'จำนวนทั้งหมด', 'ผ่าน', 'ไม่ผ่าน'];
+        const headers = ['ลำดับ', 'ชั้น', 'ห้อง', 'ผู้ตรวจ', 'วันที่', 'จำนวนทั้งหมด', 'ผ่าน', 'ไม่ผ่าน', 'ไม่ได้มาตรวจ'];
         worksheet.addRow(headers);
 
         sortedForExport.forEach((item, index) => {
+            const notPassReal = Math.max(0, (item.summary?.not_pass ?? 0) - (item.summary?.no_show ?? 0));
             worksheet.addRow([
                 index + 1,
                 item.grade ? mapGradeDisplay(item.grade) : '-',
@@ -252,7 +259,8 @@ const exportUniformInspectionToExcel = async () => {
                 formatThaiDate(item.date),
                 item.summary?.total ?? 0,
                 item.summary?.pass ?? 0,
-                item.summary?.not_pass ?? 0,
+                notPassReal,
+                item.summary?.no_show ?? 0,
             ]);
         });
 
@@ -263,6 +271,7 @@ const exportUniformInspectionToExcel = async () => {
             { width: 24 },
             { width: 18 },
             { width: 16 },
+            { width: 12 },
             { width: 12 },
             { width: 12 },
         ];
