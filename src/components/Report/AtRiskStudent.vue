@@ -28,17 +28,24 @@
                         <th class="text-center">โปรไฟล์</th>
                         <th>ชื่อ-สกุล</th>
                         <th class="text-center">ชั้น/ห้อง</th>
-                        <th class="text-center">คะแนนเสี่ยง</th>
+                        <th class="text-center cursor-pointer select-none hover:bg-primary-focus transition-colors" @click="toggleSortScore">
+                            <div class="inline-flex items-center gap-1 justify-center">
+                                <span>คะแนนเสี่ยง</span>
+                                <span v-if="sortDirection === 'asc'">▲</span>
+                                <span v-else-if="sortDirection === 'desc'">▼</span>
+                                <span v-else class="opacity-40">↕</span>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-if="loading">
                         <td colspan="6" class="text-center py-8 text-base-content/60">กำลังโหลดข้อมูล...</td>
                     </tr>
-                    <tr v-else-if="riskStudents.length === 0">
+                    <tr v-else-if="sortedRiskStudents.length === 0">
                         <td colspan="6" class="text-center py-8 text-base-content/60">ไม่พบข้อมูล</td>
                     </tr>
-                    <tr v-for="(item, index) in riskStudents" :key="item._id || item.userid" class="hover">
+                    <tr v-for="(item, index) in sortedRiskStudents" :key="item._id || item.userid" class="hover">
                         <td class="text-center">{{ index + 1 }}</td>
                         <td class="text-center">{{ item.userid || '-' }}</td>
                         <td class="text-center">
@@ -73,12 +80,12 @@
             <div v-if="loading" class="text-center py-8 text-base-content/60 bg-base-100 rounded-lg shadow-lg">
                 กำลังโหลดข้อมูล...
             </div>
-            <div v-else-if="riskStudents.length === 0"
+            <div v-else-if="sortedRiskStudents.length === 0"
                 class="text-center py-8 text-base-content/60 bg-base-100 rounded-lg shadow-lg">
                 ไม่พบข้อมูล
             </div>
 
-            <div v-for="(item, index) in riskStudents" :key="item._id || item.userid"
+            <div v-for="(item, index) in sortedRiskStudents" :key="item._id || item.userid"
                 class="bg-base-100 rounded-lg shadow-lg p-4 space-y-3">
                 <div class="flex items-start gap-3">
                     <div v-if="item.picture" class="avatar">
@@ -125,7 +132,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
@@ -139,6 +146,35 @@ const riskStudents = ref([]);
 const loading = ref(false);
 const loadingExport = ref(false);
 const errorMessage = ref("");
+
+const sortDirection = ref('desc');
+
+const toggleSortScore = () => {
+    if (sortDirection.value === 'desc') {
+        sortDirection.value = 'asc';
+    } else if (sortDirection.value === 'asc') {
+        sortDirection.value = null;
+    } else {
+        sortDirection.value = 'desc';
+    }
+};
+
+const sortedRiskStudents = computed(() => {
+    if (!sortDirection.value) {
+        return riskStudents.value;
+    }
+
+    return [...riskStudents.value].sort((a, b) => {
+        const scoreA = Number(a.score) ?? -Infinity;
+        const scoreB = Number(b.score) ?? -Infinity;
+
+        if (sortDirection.value === 'asc') {
+            return scoreA - scoreB;
+        } else {
+            return scoreB - scoreA;
+        }
+    });
+});
 
 const fetchRiskStudents = async () => {
     loading.value = true;
@@ -214,7 +250,7 @@ const exportRiskStudentsToExcel = async () => {
         const headers = ['ลำดับ', 'รหัส', 'ชื่อ-สกุล', 'ชั้น/ห้อง', 'คะแนนเสี่ยง', 'ระดับความเสี่ยง'];
         worksheet.addRow(headers);
 
-        riskStudents.value.forEach((item, index) => {
+        sortedRiskStudents.value.forEach((item, index) => {
             const score = Number(item.score);
             let riskLevel = '-';
 

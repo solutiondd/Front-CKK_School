@@ -707,13 +707,14 @@ async function showStudentLateTable() {
     try {
         loading.value = true
         lateRole.value = 'student'
+        latePage.value = 1
+        
         let params = {
             start: selectedDate.value,
             end: selectedDate.value,
             role: 'student',
-            page: latePage.value,
-            limit: lateLimit.value,
-            sort: lateTimeSortOrder.value 
+            page: 1,
+            limit: 10000
         }
         if (residentRole.value === 'teacher') {
             params.grade = localGrade.value
@@ -721,17 +722,20 @@ async function showStudentLateTable() {
         }
         const res = await reportApi.getLateReport(params)
         if (res.message === 'Success' && res.data) {
-            lateAllData.value = res.data || [];
-            lateTotalItems.value = res.total_items || lateAllData.value.length;
-            lateTotalPages.value = res.total_pages || 1;
-            latePage.value = res.page || 1;
-            lateData.value = sortLateData(lateAllData.value, lateTimeSortOrder.value);
-            lateModal.value?.showModal();
+            const sorted = sortLateData(res.data || [], lateTimeSortOrder.value)
+            lateAllData.value = sorted
+            
+            lateLimit.value = 5
+            lateTotalItems.value = sorted.length
+            lateTotalPages.value = Math.ceil(sorted.length / lateLimit.value) || 1
+            
+            lateData.value = sorted.slice(0, lateLimit.value)
+            lateModal.value?.showModal()
         }
     } catch (e) {
-        console.error('Error fetching student late data:', e);
+        console.error('Error fetching student late data:', e)
     } finally {
-        loading.value = false;
+        loading.value = false
     }
 }
 
@@ -739,29 +743,34 @@ async function showTeacherLateTable() {
     try {
         loading.value = true
         lateRole.value = 'teacher'
+        latePage.value = 1
+        
         let params = {
             start: selectedDate.value,
             end: selectedDate.value,
             role: 'teacher',
-            page: latePage.value,
-            limit: lateLimit.value
+            page: 1,
+            limit: 10000
         }
         if (residentRole.value === 'teacher') {
             params.name = profileName.value
         }
         const res = await reportApi.getLateReport(params)
         if (res.message === 'Success' && res.data) {
-            lateAllData.value = res.data || [];
-            lateTotalItems.value = res.total_items || lateAllData.value.length;
-            lateTotalPages.value = res.total_pages || 1;
-            latePage.value = res.page || 1;
-            lateData.value = lateAllData.value;
-            lateModal.value?.showModal();
+            const sorted = sortLateData(res.data || [], lateTimeSortOrder.value)
+            lateAllData.value = sorted
+            
+            lateLimit.value = 5
+            lateTotalItems.value = sorted.length
+            lateTotalPages.value = Math.ceil(sorted.length / lateLimit.value) || 1
+            
+            lateData.value = sorted.slice(0, lateLimit.value)
+            lateModal.value?.showModal()
         }
     } catch (e) {
-        console.error('Error fetching teacher late data:', e);
+        console.error('Error fetching teacher late data:', e)
     } finally {
-        loading.value = false;
+        loading.value = false
     }
 }
 
@@ -847,71 +856,9 @@ function showTeacherActivityTable() {
 
 function handleLatePageChange(page) {
     if (page >= 1 && page <= lateTotalPages.value) {
-        latePage.value = page;
-        if (lateRole.value === 'student') {
-            showStudentLateTableWithPage(page);
-        } else {
-            showTeacherLateTableWithPage(page);
-        }
-    }
-
-    async function showStudentLateTableWithPage(page) {
-        try {
-            loading.value = true;
-            lateRole.value = 'student';
-            let params = {
-                start: selectedDate.value,
-                end: selectedDate.value,
-                role: 'student',
-                page: page,
-                limit: lateLimit.value
-            };
-            if (residentRole.value === 'teacher') {
-                params.grade = localGrade.value;
-                params.classroom = localClassroom.value;
-            }
-            const res = await reportApi.getLateReport(params);
-            if (res.message === 'Success' && res.data) {
-                lateAllData.value = res.data || [];
-                lateTotalItems.value = res.total_items || lateAllData.value.length;
-                lateTotalPages.value = res.total_pages || 1;
-                latePage.value = res.page || page;
-                lateData.value = lateAllData.value;
-            }
-        } catch (e) {
-            console.error('Error fetching student late data:', e);
-        } finally {
-            loading.value = false;
-        }
-    }
-
-    async function showTeacherLateTableWithPage(page) {
-        try {
-            loading.value = true;
-            lateRole.value = 'teacher';
-            let params = {
-                start: selectedDate.value,
-                end: selectedDate.value,
-                role: 'teacher',
-                page: page,
-                limit: lateLimit.value
-            };
-            if (residentRole.value === 'teacher') {
-                params.name = profileName.value;
-            }
-            const res = await reportApi.getLateReport(params);
-            if (res.message === 'Success' && res.data) {
-                lateAllData.value = res.data || [];
-                lateTotalItems.value = res.total_items || lateAllData.value.length;
-                lateTotalPages.value = res.total_pages || 1;
-                latePage.value = res.page || page;
-                lateData.value = lateAllData.value;
-            }
-        } catch (e) {
-            console.error('Error fetching teacher late data:', e);
-        } finally {
-            loading.value = false;
-        }
+        latePage.value = page
+        const start = (page - 1) * lateLimit.value
+        lateData.value = lateAllData.value.slice(start, start + lateLimit.value)
     }
 }
 
