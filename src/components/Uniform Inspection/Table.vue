@@ -408,16 +408,12 @@ const openFailModal = async (studentId) => {
 
     const selectedPresetIssues = existingIssues.filter((issue) => issueOptions.includes(issue));
     const customIssues = existingIssues.filter((issue) => !issueOptions.includes(issue));
-    const hasSavedRemark = Object.prototype.hasOwnProperty.call(existing, 'remark');
-    const selectedRemark = hasSavedRemark
-        ? (remarkOptions.includes(existing.remark) ? existing.remark : '')
-        : DEFAULT_REMARK;
 
     failModal.value.studentId = studentId;
     failModal.value.form = {
         issues: selectedPresetIssues,
         customIssue: customIssues.join(', '),
-        remark: selectedRemark,
+        remark: DEFAULT_REMARK,
     };
 
     studentFailHistory.value = [];
@@ -432,6 +428,31 @@ const openFailModal = async (studentId) => {
         studentFailHistory.value = allConducts.filter(
             (item) => item.behavior_type === 'หมวดร่างกายและการแต่งกาย'
         );
+
+        const hasSavedRemark = Object.prototype.hasOwnProperty.call(existing, 'remark');
+
+        if (hasSavedRemark && remarkOptions.includes(existing.remark)) {
+            failModal.value.form.remark = existing.remark;
+        } else {
+            if (studentFailHistory.value.length > 0) {
+                const latestHistory = studentFailHistory.value[studentFailHistory.value.length - 1];
+                const lastDescription = latestHistory?.description || '';
+
+                const matchedIndex = remarkOptions.findIndex((option) => {
+                    const mainText = option.split('-')[0].trim();
+                    return lastDescription.includes(mainText);
+                });
+
+                if (matchedIndex !== -1) {
+                    const nextIndex = Math.min(matchedIndex + 1, remarkOptions.length - 1);
+                    failModal.value.form.remark = remarkOptions[nextIndex];
+                } else {
+                    failModal.value.form.remark = DEFAULT_REMARK;
+                }
+            } else {
+                failModal.value.form.remark = DEFAULT_REMARK;
+            }
+        }
     } catch (error) {
         console.error('Error fetching student conduct:', error);
     } finally {
