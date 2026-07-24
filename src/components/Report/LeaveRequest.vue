@@ -19,18 +19,20 @@
             <table class="table table-zebra w-full text-sm">
                 <thead>
                     <tr class="bg-primary text-primary-content">
+                        <th class="text-center w-12">#</th>
                         <th>รหัส</th>
                         <th>ชื่อ</th>
                         <th>ชั้น</th>
                         <!-- <th class="hidden xl:table-cell">ตำแหน่ง</th> -->
                         <th class="hidden md:table-cell">วันที่ลา</th>
-                        <th>สถานะลา</th>
-                        <th class="hidden min-[560px]:table-cell">การเข้าเรียน</th>
+                        <th class="hidden min-[480px]:table-cell">สถานะลา</th>
+                        <th class="hidden min-[612px]:table-cell">การเข้าเรียน</th>
                         <th class="text-center"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="request in leaveRequests" :key="request._id">
+                    <tr v-for="(request, index) in leaveRequests" :key="request._id">
+                        <td class="text-center text-xs min-[433px]:text-sm font-medium">{{ index + 1 }}</td>
                         <td class="text-xs min-[433px]:text-sm">{{ request.user_id?.userid || '-' }}</td>
                         <td class="text-xs min-[433px]:text-sm">{{ request.user_id?.name || '-' }}</td>
                         <td class="text-xs min-[433px]:text-sm">{{ formatClassroomDisplay(request.user_id) }}</td>
@@ -41,13 +43,13 @@
                                 ({{ request.start_time }} - {{ request.end_time }})
                             </span>
                         </td>
-                        <td>
+                        <td class="hidden min-[480px]:table-cell">
                             <div
-                                :class="['hidden min-[468px]:inline-flex badge h-auto py-1 whitespace-nowrap', getStatusBadgeClass(request.status)]">
+                                :class="['hidden min-[518px]:inline-flex badge h-auto py-1 whitespace-nowrap', getStatusBadgeClass(request.status)]">
                                 {{ formatStatus(request.status) }}
                             </div>
 
-                            <div class="inline-flex min-[468px]:hidden items-center justify-center"
+                            <div class="inline-flex min-[518px]:hidden items-center justify-center"
                                 :title="formatStatus(request.status)">
                                 <svg v-if="request.status === 'approved'" class="w-6 h-6 text-emerald-500" fill="none"
                                     stroke="currentColor" viewBox="0 0 24 24">
@@ -77,7 +79,7 @@
                             </div>
                         </td>
 
-                        <td class="hidden min-[560px]:table-cell">
+                        <td class="hidden min-[612px]:table-cell">
                             <div
                                 :class="['badge gap-1 h-auto py-1 text-center whitespace-normal md:whitespace-nowrap', checkAttendanceStatus(request).badgeClass]">
                                 {{ checkAttendanceStatus(request).label }}
@@ -101,7 +103,7 @@
                         </td>
                     </tr>
                     <tr v-if="!leaveRequests.length">
-                        <td colspan="7" class="text-center text-gray-500 py-6">ไม่พบข้อมูลใบลา</td>
+                        <td colspan="8" class="text-center text-gray-500 py-6">ไม่พบข้อมูลใบลา</td>
                     </tr>
                 </tbody>
             </table>
