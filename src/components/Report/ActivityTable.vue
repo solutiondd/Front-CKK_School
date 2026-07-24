@@ -15,34 +15,44 @@
             <span class="loading loading-spinner loading-lg"></span>
         </div>
 
-        <div v-else class="bg-white rounded-lg shadow overflow-x-auto">
+        <div v-else class="bg-white rounded-lg shadow overflow-x-auto w-full">
             <table class="table table-zebra w-full text-sm">
                 <thead>
                     <tr class="bg-primary text-primary-content">
                         <th>รหัส</th>
                         <th>ชื่อ</th>
-                        <th class="hidden xl:table-cell">ตำแหน่ง</th>
-                        <th class="hidden lg:table-cell">กิจกรรม</th>
+                        <th>ชั้น</th>
+                        <th class="hidden min-[560px]:table-cell">กิจกรรม</th>
                         <th class="hidden md:table-cell">วันที่กิจกรรม</th>
-                        <!-- <th>สถานะ</th> -->
+                        <th class="hidden lg:table-cell">การเข้าเรียน</th>
                         <th class="text-center"></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="activity in activities"
-                        :key="activity._id || `${activity.user_id?.userid}-${activity.activity_name}-${activity.activity_date_start || activity.date}`">
-                        <td>{{ activity.user_id?.userid || '-' }}</td>
-                        <td>{{ activity.user_id?.name || '-' }}</td>
-                        <td class="hidden xl:table-cell">{{ formatRole(activity.user_id?.role) }}</td>
-                        <td class="hidden lg:table-cell">{{ activity.activity_name || '-' }}</td>
-                        <td class="hidden md:table-cell">{{ formatDate(activity.activity_date_start ||
-                            activity.activity_date || activity.date) }}</td>
-                        <!-- <td>
-                            <div :class="['badge', getStatusBadgeClass(activity.status), 'w-3 h-3 p-0 md:w-auto md:h-auto md:px-3']"
-                                :title="formatStatus(activity.status)">
-                                <span class="hidden md:inline">{{ formatStatus(activity.status) }}</span>
+                        :key="activity._id || `${activity.user_id?.userid}-${activity.activity_name}`">
+                        <td class="text-xs min-[503px]:text-sm">{{ activity.user_id?.userid || '-' }}</td>
+                        <td class="text-xs min-[503px]:text-sm">{{ activity.user_id?.name || '-' }}</td>
+                        <td class="text-xs min-[503px]:text-sm">{{ formatClassroomDisplay(activity.user_id) }}</td>
+                        <td class="hidden min-[560px]:table-cell">{{ activity.activity_name || '-' }}</td>
+                        <td class="hidden md:table-cell">
+                            {{ formatDate(activity.activity_date_start || activity.activity_date || activity.date) }}
+                            <span v-if="activity.start_time" class="text-xs text-gray-500 block">
+                                ({{ formatTimeRange(activity.start_time, activity.end_time) }})
+                            </span>
+                        </td>
+
+                        <td class="hidden lg:table-cell">
+                            <div
+                                :class="['badge gap-1 h-auto py-1 text-center whitespace-normal md:whitespace-nowrap', checkAttendanceStatus(activity).badgeClass]">
+                                {{ checkAttendanceStatus(activity).label }}
                             </div>
-                        </td> -->
+                            <div v-if="getValidAttendance(activity).length" class="text-xs text-gray-400 mt-1">
+                                สแกนล่าสุด: {{ getValidAttendance(activity)[getValidAttendance(activity).length -
+                                1].time }} น.
+                            </div>
+                        </td>
+
                         <td class="text-center">
                             <button @click="openDetail(activity)" class="bg-transparent border-none shadow-none p-0"
                                 title="ดูข้อมูลเพิ่มเติม">
@@ -73,6 +83,7 @@ import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import { ActivityService } from '../../api/activity';
 import ActivityDetail from './ActivityDetail.vue';
+import { formatGradeClassroomDisplay } from '../../utils/gradeSystem';
 
 const props = defineProps({
     filters: {
@@ -139,14 +150,85 @@ const formatDate = (date) => {
     }).format(d);
 };
 
+const getValidAttendance = (req) => {
+    if (!req || !req.attendance || !req.attendance.length) return [];
+    const startDate = req.activity_date_start ? req.activity_date_start.split('T')[0] : '';
+    const endDate = req.activity_date_end ? req.activity_date_end.split('T')[0] : startDate;
+
+    return req.attendance.filter(att => {
+        if (!att.date) return false;
+        return att.date >= startDate && att.date <= endDate;
+    });
+};
+
+const checkAttendanceStatus = (request) => {
+    if (!request) return { label: '-', badgeClass: 'badge-outline' };
+
+    const validAttendance = getValidAttendance(request);
+    const hasAttendance = validAttendance.length > 0;
+
+    let isFullDay = false;
+    if (!request.end_time) {
+        isFullDay = true;
+    } else {
+        const [hour] = request.end_time.split(':').map(Number);
+        if (hour >= 16) isFullDay = true;
+    }
+
+    if (hasAttendance) {
+        if (!isFullDay) {
+            return { label: 'มาเรียนแล้ว', badgeClass: 'badge-info text-info-content', type: 'present_half' };
+        }
+        return { label: 'ลงเวลามา', badgeClass: 'badge-success text-success-content', type: 'present' };
+    }
+
+    if (isFullDay) {
+        return { label: 'กิจกรรมทั้งวัน', badgeClass: 'badge-neutral text-neutral-content', type: 'full_day' };
+    }
+
+    const now = new Date();
+    const endDateStr = request.activity_date_end ? request.activity_date_end.split('T')[0] : '';
+    const endTimeStr = request.end_time || '12:00:00';
+    const endDateTime = new Date(`${endDateStr}T${endTimeStr}`);
+
+    if (now > endDateTime) {
+        return { label: 'ยังไม่สแกน', badgeClass: 'badge-error text-error-content', type: 'expired_absent' };
+    }
+
+    return { label: 'อยู่ระหว่างกิจกรรม', badgeClass: 'badge-warning text-warning-content', type: 'on_activity' };
+};
+
+const formatClassroomDisplay = (user) => {
+    if (!user) return '-';
+    if (user.role === 'teacher') return 'ครู';
+    if (user.grade && user.classroom) {
+        return formatGradeClassroomDisplay
+            ? formatGradeClassroomDisplay(user.grade, user.classroom)
+            : `${user.grade}/${user.classroom}`;
+    }
+    return '-';
+};
+
+const formatTime = (time) => {
+    if (!time) return '';
+    const parts = String(time).split(':');
+    if (parts.length >= 2) {
+        return `${parts[0]}:${parts[1]}`;
+    }
+    return time;
+};
+
 const openDetail = (activity) => {
     activityDetailRef.value?.openModal(activity);
 };
 
 const formatTimeRange = (startTime, endTime) => {
     if (!startTime && !endTime) return '-';
-    if (startTime && endTime) return `${startTime} - ${endTime}`;
-    return startTime || endTime || '-';
+    const formattedStart = formatTime(startTime);
+    const formattedEnd = formatTime(endTime);
+
+    if (formattedStart && formattedEnd) return `${formattedStart} - ${formattedEnd}`;
+    return formattedStart || formattedEnd || '-';
 };
 
 const exportActivityToExcel = async () => {

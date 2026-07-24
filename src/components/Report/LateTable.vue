@@ -594,13 +594,11 @@ const computeLateTime = (timeStr, role, position) => {
 
     if (totalSeconds2 <= totalSeconds1) return 'ไม่สาย';
 
-    const diffSeconds = totalSeconds2 - totalSeconds1;
-
     if (h2 === h1 && m2 === m1) {
-        const displaySec = String(s2 || 0).padStart(2, '0');
-        return `00:00:${displaySec}`;
+        return '00:01';
     }
 
+    const diffSeconds = totalSeconds2 - totalSeconds1;
     const diffMinutes = Math.floor(diffSeconds / 60);
     const h = Math.floor(diffMinutes / 60);
     const m = diffMinutes % 60;

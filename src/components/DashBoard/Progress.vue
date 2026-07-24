@@ -21,12 +21,13 @@
                         <tr>
                             <th class="py-3 px-4 text-left">ระดับชั้น</th>
                             <th class="text-center py-3 col-total">ทั้งหมด</th>
-                            <th class="text-center py-3 col-sexdata">ชาย</th>
-                            <th class="text-center py-3 col-sexdata">หญิง</th>
-                            <th class="text-center py-3 text-primary font-bold col-arrival">มาทั้งหมด</th>
-                            <th class="text-center py-3 text-green-600 col-timedata">ตรงเวลา</th>
-                            <th class="text-center py-3 text-orange-600 col-timedata">สาย</th>
-                            <th class="text-center py-3 t w-full sm:w-1/3">มา / ยังไม่มา</th>
+                            <th class="text-center py-3 text-green-600 font-bold col-arrival">มาทั้งหมด</th>
+                            <th class="text-center py-3 text-primary col-timedata">ตรงเวลา</th>
+                            <th class="text-center py-3 text-black col-timedata">สาย</th>
+                            <th class="text-center py-3 text-warning col-leave">ลา</th>
+                            <th class="text-center py-3 text-blue-600 col-activity">กิจกรรม</th>
+                            <th class="text-center py-3 text-red-600 col-noscan">ไม่สแกน</th>
+                            <th class="text-center py-3 w-full sm:w-1/3">มา / ยังไม่มา</th>
                         </tr>
                     </thead>
 
@@ -39,12 +40,6 @@
                                 <td>
                                     <div class="h-5 bg-gray-200 rounded w-10 mx-auto skeleton-pulse col-total"></div>
                                 </td>
-                                <td class="col-sexdata">
-                                    <div class="h-5 bg-gray-200 rounded w-10 mx-auto skeleton-pulse"></div>
-                                </td>
-                                <td class="col-sexdata">
-                                    <div class="h-5 bg-gray-200 rounded w-10 mx-auto skeleton-pulse"></div>
-                                </td>
                                 <td class="col-arrival">
                                     <div class="h-5 bg-gray-200 rounded w-10 mx-auto skeleton-pulse"></div>
                                 </td>
@@ -52,6 +47,15 @@
                                     <div class="h-5 bg-gray-200 rounded w-10 mx-auto skeleton-pulse"></div>
                                 </td>
                                 <td class="col-timedata">
+                                    <div class="h-5 bg-gray-200 rounded w-10 mx-auto skeleton-pulse"></div>
+                                </td>
+                                <td>
+                                    <div class="h-5 bg-gray-200 rounded w-10 mx-auto skeleton-pulse"></div>
+                                </td>
+                                <td>
+                                    <div class="h-5 bg-gray-200 rounded w-10 mx-auto skeleton-pulse"></div>
+                                </td>
+                                <td>
                                     <div class="h-5 bg-gray-200 rounded w-10 mx-auto skeleton-pulse"></div>
                                 </td>
                                 <td>
@@ -65,26 +69,34 @@
                         </template>
 
                         <template v-else v-for="(gradeGroup, gIdx) in processedData" :key="gIdx">
-                            <tr class="font-bold bg-gray-300/70 text-gray-900 border-b border-gray-300">
-                                <td class="text-orange-600 py-3 px-4">
-                                    <span class="text-full">{{ formatGradeTitle(gradeGroup.grade) }}</span>
-                                    <span class="text-short">{{ gradeGroup.grade }}</span>
+                            <tr 
+                                @click="toggleGrade(gradeGroup.grade)"
+                                class="font-bold bg-gray-300/70 text-gray-900 border-b border-gray-300 cursor-pointer hover:bg-gray-300/90 transition-colors select-none"
+                            >
+                                <td class="text-black py-3 px-4">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs transition-transform duration-200" :class="{ 'rotate-90': isGradeExpanded(gradeGroup.grade) }">
+                                            ▶
+                                        </span>
+                                        <span class="text-full">{{ formatGradeTitle(gradeGroup.grade) }}</span>
+                                        <span class="text-short">{{ gradeGroup.grade }}</span>
+                                    </div>
                                 </td>
                                 <td class="text-center py-3 col-total">{{ gradeGroup.total }}</td>
-                                <td class="text-center py-3 text-gray-700 col-sexdata">{{ gradeGroup.boy }}</td>
-                                <td class="text-center py-3 text-gray-700 col-sexdata">{{ gradeGroup.girl }}</td>
-                                <td class="text-center py-3 text-primary font-bold col-arrival">{{ gradeGroup.arrive }}
-                                </td>
-                                <td class="text-center py-3 text-green-600 col-timedata">{{ gradeGroup.normal }}</td>
-                                <td class="text-center py-3 text-orange-600 col-timedata">{{ gradeGroup.late }}</td>
+                                <td class="text-center py-3 text-green-600 font-bold col-arrival">{{ gradeGroup.arrive }}</td>
+                                <td class="text-center py-3 text-primary col-timedata">{{ gradeGroup.normal }}</td>
+                                <td class="text-center py-3 text-black col-timedata">{{ gradeGroup.late }}</td>
+                                <td class="text-center py-3 text-warning col-leave">{{ gradeGroup.leave }}</td>
+                                <td class="text-center py-3 text-blue-600 col-activity">{{ gradeGroup.activity }}</td>
+                                <td class="text-center py-3 text-red-600 font-bold col-noscan">{{ gradeGroup.notScan }}</td>
                                 <td class="py-3">
                                     <div class="flex items-center gap-2">
-                                        <span class="text-xs font-mono w-10 text-right text-primary font-bold">
+                                        <span class="text-xs font-mono w-10 text-right text-green-600 font-bold">
                                             {{ gradeGroup.percent }}%
                                         </span>
 
                                         <div class="tooltip tooltip-top before:text-xs before:max-w-none flex-1"
-                                            :data-tip="`มาแล้ว ${gradeGroup.arrive} คน / ยังไม่มา ${gradeGroup.total - gradeGroup.arrive} คน`">
+                                            :data-tip="`มาแล้ว ${gradeGroup.arrive} คน / ยังไม่มา ${gradeGroup.notScan} คน`">
                                             <div class="flat-bar-container cursor-pointer">
                                                 <div class="flat-fill-green"
                                                     :style="{ width: gradeGroup.percent + '%' }"></div>
@@ -100,48 +112,47 @@
                                 </td>
                             </tr>
 
-                            <tr v-for="(room, rIdx) in gradeGroup.rooms" :key="rIdx" :class="[
-                                rIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50/80',
-                                'hover:bg-gray-100 border-b border-gray-100 transition-colors text-gray-700'
-                            ]">
-                                <td class="pl-8 py-2.5 text-gray-900">
-                                    <span class="text-full">{{ formatGradeTitle(gradeGroup.grade) }} ห้อง {{
-                                        room.classroom }}</span>
-                                    <span class="text-short">{{ gradeGroup.grade }}/{{ room.classroom }}</span>
-                                </td>
-                                <td class="text-center py-2.5 text-gray-600 col-total">{{ room.total }}</td>
-                                <td class="text-center py-2.5 text-gray-600 col-sexdata">{{ room.boy }}</td>
-                                <td class="text-center py-2.5 text-gray-600 col-sexdata">{{ room.girl }}</td>
-                                <td class="text-center py-2.5 text-primary font-semibold col-arrival">{{ room.arrive }}
-                                </td>
-                                <td class="text-center py-2.5 text-green-600/90 col-timedata">{{ room.normal }}</td>
-                                <td class="text-center py-2.5 text-orange-600/90 col-timedata">{{ room.late }}</td>
-                                <td class="py-2.5">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-xs font-mono w-10 text-right text-primary">
-                                            {{ room.percent }}%
-                                        </span>
+                            <template v-if="isGradeExpanded(gradeGroup.grade)">
+                                <tr v-for="(room, rIdx) in gradeGroup.rooms" :key="rIdx" :class="[
+                                    rIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50/80',
+                                    'hover:bg-gray-100 border-b border-gray-100 transition-colors text-gray-700'
+                                ]">
+                                    <td class="pl-10 py-2.5 text-gray-900">
+                                        <span class="text-full">{{ formatGradeTitle(gradeGroup.grade) }} ห้อง {{ room.classroom }}</span>
+                                        <span class="text-short">{{ gradeGroup.grade }}/{{ room.classroom }}</span>
+                                    </td>
+                                    <td class="text-center py-2.5 text-gray-600 col-total">{{ room.total }}</td>
+                                    <td class="text-center py-2.5 text-green-600 font-semibold col-arrival">{{ room.arrive }}</td>
+                                    <td class="text-center py-2.5 text-primary/90 col-timedata">{{ room.normal }}</td>
+                                    <td class="text-center py-2.5 text-black/90 col-timedata">{{ room.late }}</td>
+                                    <td class="text-center py-2.5 text-warning/90 col-leave">{{ room.leave }}</td>
+                                    <td class="text-center py-2.5 text-blue-600/90 col-activity">{{ room.activity }}</td>
+                                    <td class="text-center py-2.5 text-red-600/90 font-semibold col-noscan">{{ room.notScan }}</td>
+                                    <td class="py-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-mono w-10 text-right text-green-600">
+                                                {{ room.percent }}%
+                                            </span>
 
-                                        <div class="tooltip tooltip-top before:text-xs before:max-w-none flex-1"
-                                            :data-tip="`มาแล้ว ${room.arrive} คน / ยังไม่มา ${room.total - room.arrive} คน`">
-                                            <div class="flat-bar-container h-2.5 cursor-pointer">
-                                                <div class="flat-fill-green" :style="{ width: room.percent + '%' }">
+                                            <div class="tooltip tooltip-top before:text-xs before:max-w-none flex-1"
+                                                :data-tip="`มาแล้ว ${room.arrive} คน / ยังไม่มา ${room.notScan} คน`">
+                                                <div class="flat-bar-container h-2.5 cursor-pointer">
+                                                    <div class="flat-fill-green" :style="{ width: room.percent + '%' }"></div>
+                                                    <div class="flat-fill-red" :style="{ width: (100 - room.percent) + '%' }"></div>
                                                 </div>
-                                                <div class="flat-fill-red"
-                                                    :style="{ width: (100 - room.percent) + '%' }"></div>
                                             </div>
-                                        </div>
 
-                                        <span class="text-xs font-mono w-10 text-left text-red-600/80">
-                                            {{ 100 - room.percent }}%
-                                        </span>
-                                    </div>
-                                </td>
-                            </tr>
+                                            <span class="text-xs font-mono w-10 text-left text-red-600/80">
+                                                {{ 100 - room.percent }}%
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
                         </template>
 
                         <tr v-if="processedData.length === 0 && !loading">
-                            <td colspan="8" class="text-center py-8 text-gray-400 bg-gray-50">
+                            <td colspan="9" class="text-center py-8 text-gray-400 bg-gray-50">
                                 ไม่มีข้อมูลความคืบหน้าในวันนี้
                             </td>
                         </tr>
@@ -172,6 +183,20 @@ const props = defineProps({
 
 const selectedDate = ref(props.date)
 
+const expandedGrades = ref(new Set())
+
+const toggleGrade = (grade) => {
+    if (expandedGrades.value.has(grade)) {
+        expandedGrades.value.delete(grade)
+    } else {
+        expandedGrades.value.add(grade)
+    }
+}
+
+const isGradeExpanded = (grade) => {
+    return expandedGrades.value.has(grade)
+}
+
 watch(() => props.date, (newVal) => {
     if (newVal) {
         selectedDate.value = newVal
@@ -197,36 +222,47 @@ const processedData = computed(() => {
 
     return sourceData.filter(Boolean).map(item => {
         const safeItem = item || {}
-        let total = 0, boy = 0, girl = 0, normal = 0, late = 0, arrive = 0
+        let total = 0, normal = 0, late = 0, arrive = 0, leave = 0, activity = 0
 
         const classroomsList = safeItem.classrooms || safeItem.rooms || []
         const rooms = (Array.isArray(classroomsList) ? classroomsList : []).filter(Boolean).map(room => {
             const safeRoom = room || {}
             const roomArrive = safeRoom.arrive || 0
             const roomTotal = safeRoom.total || 0
+            const roomLeave = safeRoom.leave || 0
+            const roomActivity = safeRoom.activity || 0
+            const roomNotScan = roomTotal - roomArrive
 
             const percent = roomTotal > 0 ? Math.round((roomArrive / roomTotal) * 100) : 0
 
             total += roomTotal
-            boy += (safeRoom.boy || 0)
-            girl += (safeRoom.girl || 0)
             normal += (safeRoom.normal || 0)
             late += (safeRoom.late || 0)
             arrive += roomArrive
+            leave += roomLeave
+            activity += roomActivity
 
-            return { ...safeRoom, percent }
+            return { 
+                ...safeRoom, 
+                leave: roomLeave,
+                activity: roomActivity,
+                notScan: roomNotScan,
+                percent 
+            }
         })
 
         const gradePercent = total > 0 ? Math.round((arrive / total) * 100) : 0
+        const gradeNotScan = total - arrive
 
         return {
             grade: safeItem.grade,
             total,
-            boy,
-            girl,
             normal,
             late,
             arrive,
+            leave,
+            activity,
+            notScan: gradeNotScan,
             percent: gradePercent,
             rooms
         }
@@ -243,14 +279,13 @@ const processedData = computed(() => {
     display: inline;
 }
 
-@media (max-width: 1087px) {
-    .col-timedata {
+@media (max-width: 1164px) {
+    .col-leave, .col-activity {
         display: none !important;
     }
 }
-
-@media (max-width: 705px) {
-    .col-sexdata {
+@media (max-width: 1087px) {
+    .col-timedata {
         display: none !important;
     }
 }
@@ -265,8 +300,8 @@ const processedData = computed(() => {
     }
 }
 
-@media (max-width: 550px) {
-    .col-arrival {
+@media (max-width: 604px) {
+    .col-arrival, .col-noscan {
         display: none !important;
     }
 }
@@ -289,7 +324,7 @@ const processedData = computed(() => {
 }
 
 .flat-fill-green {
-    background-color: #609cfc;
+    background-color: #009e08;
     height: 100%;
     transform-origin: left;
     animation: growLeft 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;

@@ -66,7 +66,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
                     <div class="rounded-lg border border-base-300 p-4">
                         <h4 class="font-semibold mb-3 text-base">ผู้บันทึกข้อมูล</h4>
                         <div class="space-y-2">
@@ -101,6 +101,36 @@
                                 <span class="font-semibold">{{ formatDate(activity.updated_at) }}</span>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="rounded-lg border border-base-300 p-4 bg-base-50">
+                    <h4 class="font-semibold mb-3 text-base flex items-center justify-between">
+                        <span>การเข้าเรียน</span>
+                    </h4>
+
+                    <div v-if="activity.attendance && activity.attendance.length" class="overflow-x-auto">
+                        <table class="table table-xs w-full bg-white rounded shadow-sm">
+                            <thead>
+                                <tr class="bg-base-200">
+                                    <th>วันที่</th>
+                                    <th>เวลาสแกน</th>
+                                    <th>สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(att, idx) in activity.attendance" :key="idx">
+                                    <td>{{ formatDate(att.date) }}</td>
+                                    <td>{{ att.time ? `${att.time} น.` : '-' }}</td>
+                                    <td>
+                                        <span class="badge badge-xs badge-success">{{ att.status || 'สแกนเข้า' }}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div v-else class="text-center text-gray-400 py-3 text-xs">
+                        ยังไม่มีข้อมูลการเข้าเรียน
                     </div>
                 </div>
             </div>
@@ -154,6 +184,10 @@ const formatStudentLevel = (grade, classroom) => {
 
 const formatTime = (time) => {
     if (!time) return '-';
+    const parts = String(time).split(':');
+    if (parts.length >= 2) {
+        return `${parts[0]}:${parts[1]}`;
+    }
     return time;
 };
 
