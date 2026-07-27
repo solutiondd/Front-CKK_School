@@ -75,7 +75,7 @@
         </dialog>
 
         <dialog ref="leaveModal" class="modal">
-            <div class="modal-box max-w-7xl">
+            <div class="modal-box max-w-7xl p-2 min-[481px]:p-6">
                 <form method="dialog">
                     <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
                 </form>
@@ -90,7 +90,7 @@
         </dialog>
 
         <dialog ref="activityModal" class="modal">
-            <div class="modal-box max-w-7xl">
+            <div class="modal-box max-w-7xl p-2 min-[481px]:p-6">
                 <form method="dialog">
                     <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
                 </form>
@@ -515,8 +515,10 @@ async function fetchLeaveSummaryByDate() {
             )
         }
 
-        studentLeave.value = data.filter((item) => item.user_id?.role === 'student').length
-        teacherLeave.value = data.filter((item) => item.user_id?.role === 'teacher').length
+        const pendingLeaves = data.filter(item => !item.attendance || item.attendance.length === 0)
+
+        studentLeave.value = pendingLeaves.filter((item) => item.user_id?.role === 'student').length
+        teacherLeave.value = pendingLeaves.filter((item) => item.user_id?.role === 'teacher').length
     } catch (e) {
         console.error('Daily leave summary error', e)
         studentLeave.value = 0
@@ -544,8 +546,10 @@ async function fetchActivitySummaryByDate() {
             )
         }
 
-        studentActivity.value = data.filter((item) => item.user_id?.role === 'student').length
-        teacherActivity.value = data.filter((item) => item.user_id?.role === 'teacher').length
+        const pendingActivities = data.filter(item => !item.attendance || item.attendance.length === 0)
+
+        studentActivity.value = pendingActivities.filter((item) => item.user_id?.role === 'student').length
+        teacherActivity.value = pendingActivities.filter((item) => item.user_id?.role === 'teacher').length
     } catch (e) {
         console.error('Daily activity summary error', e)
         studentActivity.value = 0

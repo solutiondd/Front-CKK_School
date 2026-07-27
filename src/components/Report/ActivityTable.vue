@@ -17,60 +17,62 @@
 
         <div v-else class="bg-white rounded-lg shadow overflow-x-auto w-full">
             <table class="table table-zebra w-full text-sm">
-                <thead>
-                    <tr class="bg-primary text-primary-content">
-                        <th>รหัส</th>
-                        <th>ชื่อ</th>
-                        <th>ชั้น</th>
-                        <th class="hidden min-[560px]:table-cell">กิจกรรม</th>
-                        <th class="hidden md:table-cell">วันที่กิจกรรม</th>
-                        <th class="hidden lg:table-cell">การเข้าเรียน</th>
-                        <th class="text-center"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="activity in activities"
-                        :key="activity._id || `${activity.user_id?.userid}-${activity.activity_name}`">
-                        <td class="text-xs min-[503px]:text-sm">{{ activity.user_id?.userid || '-' }}</td>
-                        <td class="text-xs min-[503px]:text-sm">{{ activity.user_id?.name || '-' }}</td>
-                        <td class="text-xs min-[503px]:text-sm">{{ formatClassroomDisplay(activity.user_id) }}</td>
-                        <td class="hidden min-[560px]:table-cell">{{ activity.activity_name || '-' }}</td>
-                        <td class="hidden md:table-cell">
-                            {{ formatDate(activity.activity_date_start || activity.activity_date || activity.date) }}
-                            <span v-if="activity.start_time" class="text-xs text-gray-500 block">
-                                ({{ formatTimeRange(activity.start_time, activity.end_time) }})
-                            </span>
-                        </td>
+    <thead>
+        <tr class="bg-primary text-primary-content">
+            <th class="text-center w-12">ลำดับ</th> <!-- เพิ่มคอลัมน์ลำดับ -->
+            <th>รหัส</th>
+            <th>ชื่อ</th>
+            <th>ชั้น</th>
+            <th class="hidden min-[560px]:table-cell">กิจกรรม</th>
+            <th class="hidden md:table-cell">วันที่กิจกรรม</th>
+            <th class="hidden lg:table-cell">การเข้าเรียน</th>
+            <th class="text-center"></th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- เพิ่ม index ใน v-for -->
+        <tr v-for="(activity, index) in activities"
+            :key="activity._id || `${activity.user_id?.userid}-${activity.activity_name}`">
+            <td class="text-center text-xs min-[503px]:text-sm font-medium">{{ index + 1 }}</td> <!-- แสดง ลำดับ -->
+            <td class="text-xs min-[503px]:text-sm">{{ activity.user_id?.userid || '-' }}</td>
+            <td class="text-xs min-[503px]:text-sm">{{ activity.user_id?.name || '-' }}</td>
+            <td class="text-xs min-[503px]:text-sm">{{ formatClassroomDisplay(activity.user_id) }}</td>
+            <td class="hidden min-[560px]:table-cell">{{ activity.activity_name || '-' }}</td>
+            <td class="hidden md:table-cell">
+                {{ formatDate(activity.activity_date_start || activity.activity_date || activity.date) }}
+                <span v-if="activity.start_time" class="text-xs text-gray-500 block">
+                    ({{ formatTimeRange(activity.start_time, activity.end_time) }})
+                </span>
+            </td>
 
-                        <td class="hidden lg:table-cell">
-                            <div
-                                :class="['badge gap-1 h-auto py-1 text-center whitespace-normal md:whitespace-nowrap', checkAttendanceStatus(activity).badgeClass]">
-                                {{ checkAttendanceStatus(activity).label }}
-                            </div>
-                            <div v-if="getValidAttendance(activity).length" class="text-xs text-gray-400 mt-1">
-                                สแกนล่าสุด: {{ getValidAttendance(activity)[getValidAttendance(activity).length -
-                                1].time }} น.
-                            </div>
-                        </td>
+            <td class="hidden lg:table-cell">
+                <div
+                    :class="['badge gap-1 h-auto py-1 text-center whitespace-normal md:whitespace-nowrap', checkAttendanceStatus(activity).badgeClass]">
+                    {{ checkAttendanceStatus(activity).label }}
+                </div>
+                <div v-if="getValidAttendance(activity).length" class="text-xs text-gray-400 mt-1">
+                    สแกนล่าสุด: {{ getValidAttendance(activity)[getValidAttendance(activity).length - 1].time }} น.
+                </div>
+            </td>
 
-                        <td class="text-center">
-                            <button @click="openDetail(activity)" class="bg-transparent border-none shadow-none p-0"
-                                title="ดูข้อมูลเพิ่มเติม">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                    stroke="#3b82f6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr v-if="!activities.length">
-                        <td colspan="7" class="text-center text-gray-500 py-6">ไม่พบข้อมูลกิจกรรม</td>
-                    </tr>
-                </tbody>
-            </table>
+            <td class="text-center">
+                <button @click="openDetail(activity)" class="bg-transparent border-none shadow-none p-0"
+                    title="ดูข้อมูลเพิ่มเติม">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="#3b82f6">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                </button>
+            </td>
+        </tr>
+        <tr v-if="!activities.length">
+            <td colspan="8" class="text-center text-gray-500 py-6">ไม่พบข้อมูลกิจกรรม</td> <!-- ปรับ colspan เป็น 8 -->
+        </tr>
+    </tbody>
+</table>
         </div>
 
         <ActivityDetail ref="activityDetailRef" />
