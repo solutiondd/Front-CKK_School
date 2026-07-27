@@ -409,20 +409,31 @@
                     {{ formatThaiDate(leaveModal.form.leaveEndDate || leaveModal.form.leaveStartDate || selectedDate) }}
                 </p>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">เวลาเริ่ม <span class="text-gray-400 text-xs">(ไม่เลือก =
-                                    เต็มวัน)</span></span>
+                <div class="form-control w-full mb-4">
+                    <label class="label">
+                        <span class="label-text font-medium">ช่วงเวลาลา</span>
+                    </label>
+                    <div class="flex flex-wrap gap-4 bg-base-200 p-3 rounded-lg">
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="radio" value="all_day" v-model="leaveModal.form.timeOption"
+                                class="radio radio-primary radio-sm" />
+                            <span class="label-text font-medium">ทั้งวัน</span>
                         </label>
-                        <input type="time" v-model="leaveModal.form.startTime" class="input input-bordered" />
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="radio" value="morning" v-model="leaveModal.form.timeOption"
+                                class="radio radio-primary radio-sm" />
+                            <span class="label-text font-medium">ช่วงเช้า</span>
+                        </label>
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="radio" value="afternoon" v-model="leaveModal.form.timeOption"
+                                class="radio radio-primary radio-sm" />
+                            <span class="label-text font-medium">ช่วงบ่าย</span>
+                        </label>
                     </div>
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">เวลาสิ้นสุด <span class="text-gray-400 text-xs">(ไม่เลือก =
-                                    เต็มวัน)</span></span>
-                        </label>
-                        <input type="time" v-model="leaveModal.form.endTime" class="input input-bordered" />
+                    <div class="text-xs text-gray-500 mt-2 px-1">
+                        <span v-if="leaveModal.form.timeOption === 'all_day'">• ทั้งวัน (ไม่ระบุเวลาเจาะจง)</span>
+                        <span v-else-if="leaveModal.form.timeOption === 'morning'">• ช่วงเวลา: 07:00 - 13:00 น.</span>
+                        <span v-else-if="leaveModal.form.timeOption === 'afternoon'">• ช่วงเวลา: 12:00 - 17:00 น.</span>
                     </div>
                 </div>
 
@@ -478,20 +489,33 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">เวลาเริ่ม <span class="text-gray-400 text-xs">(ไม่เลือก =
-                                    เต็มวัน)</span></span>
+                <div class="form-control w-full mb-4">
+                    <label class="label">
+                        <span class="label-text font-medium">ช่วงเวลากิจกรรม</span>
+                    </label>
+                    <div class="flex flex-wrap gap-4 bg-base-200 p-3 rounded-lg">
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="radio" value="all_day" v-model="activityModal.form.timeOption"
+                                class="radio radio-primary radio-sm" />
+                            <span class="label-text font-medium">ทั้งวัน</span>
                         </label>
-                        <input type="time" v-model="activityModal.form.start_time" class="input input-bordered" />
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="radio" value="morning" v-model="activityModal.form.timeOption"
+                                class="radio radio-primary radio-sm" />
+                            <span class="label-text font-medium">ช่วงเช้า</span>
+                        </label>
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="radio" value="afternoon" v-model="activityModal.form.timeOption"
+                                class="radio radio-primary radio-sm" />
+                            <span class="label-text font-medium">ช่วงบ่าย</span>
+                        </label>
                     </div>
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">เวลาสิ้นสุด <span class="text-gray-400 text-xs">(ไม่เลือก =
-                                    เต็มวัน)</span></span>
-                        </label>
-                        <input type="time" v-model="activityModal.form.end_time" class="input input-bordered" />
+                    <div class="text-xs text-gray-500 mt-2 px-1">
+                        <span v-if="activityModal.form.timeOption === 'all_day'">• ทั้งวัน (ไม่ระบุเวลาเจาะจง)</span>
+                        <span v-else-if="activityModal.form.timeOption === 'morning'">• ช่วงเวลา: 07:00 - 13:00
+                            น.</span>
+                        <span v-else-if="activityModal.form.timeOption === 'afternoon'">• ช่วงเวลา: 12:00 - 17:00
+                            น.</span>
                     </div>
                 </div>
 
@@ -933,6 +957,7 @@ const openLeaveModal = async (studentId, mode = 'create') => {
         : mode === 'edit'
             ? (pending.requestId || attendance.leaveRequestId || null)
             : null;
+
     const defaultDate = props.selectedDate || '';
     const startDate = useDraft
         ? (draft.startDate || defaultDate)
@@ -944,12 +969,15 @@ const openLeaveModal = async (studentId, mode = 'create') => {
         : mode === 'edit'
             ? (pending.endDate || pending.leaveDate || defaultDate)
             : defaultDate;
+
+    const rawStartTime = useDraft ? (draft.startTime || '') : mode === 'edit' ? (pending.startTime || '') : '';
+    const rawEndTime = useDraft ? (draft.endTime || '') : mode === 'edit' ? (pending.endTime || '') : '';
+
     leaveModal.value.form = {
         leaveStartDate: startDate,
         leaveEndDate: endDate,
         leaveType: selectedLeaveTypeId,
-        startTime: useDraft ? (draft.startTime || '') : mode === 'edit' ? (pending.startTime || '') : '',
-        endTime: useDraft ? (draft.endTime || '') : mode === 'edit' ? (pending.endTime || '') : '',
+        timeOption: getTimeOptionFromValues(rawStartTime, rawEndTime), // Default 'all_day' หากไม่แมตช์
         reason: useDraft ? (draft.reason || '') : mode === 'edit' ? (pending.reason || attendance.remark || '') : '',
     };
     await nextTick();
@@ -974,6 +1002,22 @@ const normalizeDateInput = (value) => {
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+};
+
+const getTimeValuesByOption = (option) => {
+    if (option === 'morning') {
+        return { startTime: '07:00', endTime: '13:00' };
+    }
+    if (option === 'afternoon') {
+        return { startTime: '12:00', endTime: '17:00' };
+    }
+    return { startTime: '', endTime: '' };
+};
+
+const getTimeOptionFromValues = (startTime, endTime) => {
+    if (startTime === '07:00' && endTime === '13:00') return 'morning';
+    if (startTime === '12:00' && endTime === '17:00') return 'afternoon';
+    return 'all_day';
 };
 
 const openActivityModal = async (studentId, mode = 'create') => {
@@ -1004,6 +1048,10 @@ const openActivityModal = async (studentId, mode = 'create') => {
             ? (current.activityId || null)
             : null;
     const defaultDate = props.selectedDate || '';
+
+    const rawStartTime = useDraft ? (draftCurrent.startTime || '') : mode === 'edit' ? (current.startTime || '') : '';
+    const rawEndTime = useDraft ? (draftCurrent.endTime || '') : mode === 'edit' ? (current.endTime || '') : '';
+
     activityModal.value.form = {
         activity_name: useDraft ? (draftCurrent.activityName || '') : mode === 'edit' ? (current.activityName || '') : '',
         activity_date_start: useDraft
@@ -1016,8 +1064,7 @@ const openActivityModal = async (studentId, mode = 'create') => {
             : mode === 'edit'
                 ? (normalizeDateInput(current.activityDateEnd) || normalizeDateInput(current.activityDateStart) || defaultDate)
                 : defaultDate,
-        start_time: useDraft ? (draftCurrent.startTime || '') : mode === 'edit' ? (current.startTime || '') : '08:00:00',
-        end_time: useDraft ? (draftCurrent.endTime || '') : mode === 'edit' ? (current.endTime || '') : '17:00:00',
+        timeOption: getTimeOptionFromValues(rawStartTime, rawEndTime), // Default 'all_day'
         location: useDraft ? (draftCurrent.location || '') : mode === 'edit' ? (current.location || '') : '',
         remark: useDraft ? (draftCurrent.remark || '') : mode === 'edit' ? (current.remark || '') : '',
     };
@@ -1164,21 +1211,12 @@ const createActivityRequest = async () => {
         return;
     }
 
-    const startTimeFormatted = formatTimeToSeconds(activityModal.value.form.start_time || '00:00');
-    const endTimeFormatted = formatTimeToSeconds(activityModal.value.form.end_time || '23:59');
-
     if (activityDateEnd < activityDateStart) {
         Swal.fire('แจ้งเตือน', 'วันสิ้นสุดกิจกรรมต้องไม่น้อยกว่าวันเริ่มกิจกรรม', 'warning');
         return;
     }
 
-    if (activityDateStart === activityDateEnd) {
-        if (endTimeFormatted <= startTimeFormatted) {
-            Swal.fire('แจ้งเตือน', 'เวลาสิ้นสุดต้องมากกว่าเวลาเริ่มต้นเสมอสำหรับกิจกรรมในวันเดียวกัน', 'warning');
-            return;
-        }
-    }
-
+    const { startTime, endTime } = getTimeValuesByOption(activityModal.value.form.timeOption);
 
     const shouldShow = isSelectedDateInActivityRange(activityDateStart, activityDateEnd);
     if (!shouldShow) {
@@ -1194,8 +1232,8 @@ const createActivityRequest = async () => {
         activityName: activityModal.value.form.activity_name,
         activityDateStart,
         activityDateEnd,
-        startTime: startTimeFormatted,
-        endTime: endTimeFormatted,
+        startTime: startTime ? formatTimeToSeconds(startTime) : '',
+        endTime: endTime ? formatTimeToSeconds(endTime) : '',
         location: activityModal.value.form.location || '',
         remark: activityModal.value.form.remark || '',
         mode: isEditMode ? 'edit' : 'create',
@@ -1321,8 +1359,8 @@ const createLeaveRequest = async () => {
 
     const leaveTypeId = leaveType;
     const leaveTypeName = getLeaveTypeNameById(leaveTypeId);
-    const startTime = leaveModal.value.form.startTime || '';
-    const endTime = leaveModal.value.form.endTime || '';
+
+    const { startTime, endTime } = getTimeValuesByOption(leaveModal.value.form.timeOption);
 
     if (!allowedLeaveTypes.value.some((type) => type._id === leaveTypeId)) {
         Swal.fire('แจ้งเตือน', 'ประเภทการลาต้องเป็น ลาป่วย หรือ ลากิจ เท่านั้น', 'warning');
