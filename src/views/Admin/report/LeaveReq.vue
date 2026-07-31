@@ -35,6 +35,17 @@
 
                 <div v-if="residentRole !== 'teacher'" class="form-control">
                     <label class="label py-1">
+                        <span class="label-text text-sm font-medium">ประเภท</span>
+                    </label>
+                    <select v-model="filters.role" class="select select-sm select-bordered w-full">
+                        <option value="">ทั้งหมด</option>
+                        <option value="student">นักเรียน</option>
+                        <option value="teacher">ครู</option>
+                    </select>
+                </div>
+
+                <div v-if="residentRole !== 'teacher'" class="form-control">
+                    <label class="label py-1">
                         <span class="label-text text-sm font-medium">ชั้นปี</span>
                     </label>
                     <select v-model="filters.grade" class="select select-sm select-bordered w-full"
@@ -56,17 +67,6 @@
                         <option v-for="room in allRooms" :key="room" :value="room">
                             {{ room }}
                         </option>
-                    </select>
-                </div>
-
-                <div v-if="residentRole !== 'teacher'" class="form-control">
-                    <label class="label py-1">
-                        <span class="label-text text-sm font-medium">ประเภท</span>
-                    </label>
-                    <select v-model="filters.role" class="select select-sm select-bordered w-full">
-                        <option value="">ทั้งหมด</option>
-                        <option value="student">นักเรียน</option>
-                        <option value="teacher">ครู</option>
                     </select>
                 </div>
 
