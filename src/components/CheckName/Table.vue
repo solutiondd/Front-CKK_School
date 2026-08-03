@@ -832,6 +832,10 @@ watch(() => props.pendingLeaveApprovals, () => {
     applyDraftChangesToLocalState();
 }, { deep: true });
 
+watch(() => props.students, () => {
+    currentPage.value = 1;
+});
+
 watch(draftStorageKey, () => {
     loadDraftsFromStorage();
     applyDraftChangesToLocalState();

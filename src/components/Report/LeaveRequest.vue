@@ -287,6 +287,7 @@ const exportLeaveToExcel = async () => {
 const loadLeaveRequests = async () => {
     loading.value = true;
     try {
+        const search = String(props.filters.search || '').trim();
         let filters = {
             start_date: props.filters.start_date || '',
             end_date: props.filters.end_date || '',
@@ -294,6 +295,10 @@ const loadLeaveRequests = async () => {
             grade: props.filters.grade || '',
             classroom: props.filters.classroom || '',
         };
+
+        if (search) {
+            filters.userid = search;
+        }
 
         if (residentRole === 'teacher' && teacherGrade && teacherClassroom) {
             filters.grade = teacherGrade;
@@ -307,12 +312,9 @@ const loadLeaveRequests = async () => {
             data = data.filter((item) => item.user_id?.role === props.filters.role);
         }
 
-        if (props.filters.search) {
-            const search = props.filters.search.toLowerCase();
+        if (search) {
             data = data.filter(
-                (item) =>
-                    item.user_id?.name?.toLowerCase().includes(search) ||
-                    item.user_id?.userid?.toLowerCase().includes(search)
+                (item) => String(item.user_id?.userid || '').toLowerCase().includes(search.toLowerCase())
             );
         }
 

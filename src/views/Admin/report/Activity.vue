@@ -15,9 +15,9 @@
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                 <div class="form-control">
                     <label class="label py-1">
-                        <span class="label-text text-sm font-medium">ค้นหาชื่อ/รหัส</span>
+                        <span class="label-text text-sm font-medium">ค้นหารหัส</span>
                     </label>
-                    <input v-model="filters.search" type="text" placeholder="กรอกชื่อหรือรหัส"
+                    <input v-model="filters.search" type="text" placeholder="กรอกรหัส"
                         class="input input-sm input-bordered w-full" />
                 </div>
 
