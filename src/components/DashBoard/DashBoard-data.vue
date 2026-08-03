@@ -15,7 +15,7 @@
                     <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
                 </form>
                 <h3 class="font-bold text-lg mb-4">รายการเข้าเรียน{{ attendanceRole === 'teacher' ? 'ครู' : 'นักเรียน'
-                }} วันที่ {{ displayDate }}</h3>
+                    }} วันที่ {{ displayDate }}</h3>
                 <div v-if="attendanceRole === 'student'">
                     <Attendance :role="'student'" :date="selectedDate" v-if="residentRole !== 'teacher'" />
                     <Attendance :role="'student'" :date="selectedDate" v-else :fixed-grade="localGrade"
@@ -66,7 +66,7 @@
                     <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
                 </form>
                 <h3 class="font-bold text-lg mb-4">รายการที่ไม่ได้สแกน{{ missedRole === 'teacher' ? 'ครู' : 'นักเรียน'
-                }} วันที่
+                    }} วันที่
                     {{ displayDate }}</h3>
 
                 <MissedTable :data="missedData" :pagination="missedPagination" :hide-export="true"
@@ -107,7 +107,7 @@
                     {{ displayDate }}</h3>
                 <p class="text-xs sm:text-sm text-gray-600 mb-3">
                     หมายเหตุ: จำนวนรายการหน้านี้อาจไม่เท่ากับตัวเลขหน้าหลัก
-                    เนื่องจากบางคนลาในระบบไว้แต่ยังมาเรียน/สแกนเข้าเรียนได้ 
+                    เนื่องจากบางคนลาในระบบไว้แต่ยังมาเรียน/สแกนเข้าเรียนได้
                 </p>
 
                 <ActivityTable v-if="activityTableVisible" :filters="activityFilters" :hide-export="true"
@@ -490,13 +490,13 @@ async function fetchDaily() {
             totals.value.total_students = res.data.total_students || 0
             totals.value.total_teachers = res.data.total_teachers || 0
             const list = res.data.daily_stats || []
-            const stu = list.find(x => x.role === 'student') || { total: 0, late: 0, leave: 0, activity: 0 }
-            const tea = list.find(x => x.role === 'teacher') || { total: 0, late: 0, leave: 0, activity: 0 }
+            const stu = list.find(x => x.role === 'student') || { total: 0, late: 0, total_leave: 0, total_activity: 0 }
+            const tea = list.find(x => x.role === 'teacher') || { total: 0, late: 0, total_leave: 0, total_activity: 0 }
             student.value = { total: stu.total || 0, late: stu.late || 0 }
             teacher.value = { total: tea.total || 0, late: tea.late || 0 }
-            studentLeave.value = stu.leave || 0
-            teacherLeave.value = tea.leave || 0
-            studentActivity.value = stu.activity || 0
+            studentLeave.value = stu.total_leave ?? stu.leave ?? 0
+            teacherLeave.value = tea.total_leave ?? tea.leave ?? 0
+            studentActivity.value = stu.total_activity ?? stu.activity ?? 0
         } else {
             studentLeave.value = 0
             teacherLeave.value = 0
