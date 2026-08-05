@@ -8,7 +8,8 @@
                 </div>
 
                 <div class="flex flex-col items-end min-[444px]:flex-row min-[444px]:items-center gap-2" v-if="request">
-                    <div :class="['badge gap-1 h-auto py-1 text-center whitespace-normal min-[444px]:whitespace-nowrap', checkAttendanceStatus(request).badgeClass]">
+                    <div
+                        :class="['badge gap-1 h-auto py-1 text-center whitespace-normal min-[444px]:whitespace-nowrap', checkAttendanceStatus(request).badgeClass]">
                         {{ checkAttendanceStatus(request).label }}
                     </div>
                     <div :class="['badge h-auto py-1 whitespace-nowrap', getStatusBadgeClass(request.status)]">
@@ -57,12 +58,12 @@
                             <div class="flex justify-between">
                                 <span class="text-base-content/70">ช่วงการลา</span>
                                 <span class="font-semibold">{{ formatDateRange(request.start_date, request.end_date)
-                                    }}</span>
+                                }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-base-content/70">เวลา</span>
                                 <span class="font-semibold">{{ formatTimeDisplay(request.start_time, request.end_time)
-                                    }}</span>
+                                }}</span>
                             </div>
                         </div>
                     </div>
@@ -146,6 +147,7 @@ import { formatGradeClassroomDisplay } from '../../utils/gradeSystem';
 
 const modalRef = ref(null);
 const request = ref(null);
+const imgBaseUrl = import.meta.env.VITE_IMG_PROFILE_URL || '';
 
 const formatRole = (role) => {
     if (role === 'student') return 'นักเรียน';
@@ -229,7 +231,7 @@ const checkAttendanceStatus = (req) => {
     }
 
     const now = new Date();
-    const endDateStr = req.end_date; 
+    const endDateStr = req.end_date;
     const endTimeStr = req.end_time || '12:00:00';
     const endDateTime = new Date(`${endDateStr}T${endTimeStr}`);
 
@@ -275,7 +277,10 @@ const formatDateRange = (startDate, endDate) => {
 const getAttendanceImage = (imageUrl) => {
     if (!imageUrl) return '/placeholder.jpg';
     if (imageUrl.startsWith('http')) return imageUrl;
-    return `/${imageUrl}`;
+
+    const base = String(imgBaseUrl || '').replace(/\/$/, '');
+    const path = String(imageUrl).startsWith('/') ? String(imageUrl) : `/${imageUrl}`;
+    return `${base}${path}`;
 };
 
 const openModal = (data) => {

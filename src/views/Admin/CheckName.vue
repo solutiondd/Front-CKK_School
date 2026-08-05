@@ -432,12 +432,21 @@ const mapDailyStatus = async (studentList, roleType = 'student') => {
             const leaveStatus = String(leaveRequest?.status || '').toLowerCase();
             const leaveTypeName = leaveRequest?.leave_type_id?.name || 'ลา';
             const reason = leaveRequest?.reason || '';
+            const startDate = normalizeDateString(leaveRequest?.start_date);
+            const endDate = normalizeDateString(leaveRequest?.end_date || leaveRequest?.start_date);
+            const startTime = leaveRequest?.start_time || '';
+            const endTime = leaveRequest?.end_time || '';
 
             nextAttendanceData[student._id] = {
                 status: 'leave',
                 leaveType: leaveTypeName,
+                leaveTypeId: leaveRequest?.leave_type_id?._id || leaveRequest?.leave_type_id || '',
                 remark: reason,
                 leaveRequestId: leaveRequest?._id || null,
+                startDate,
+                endDate,
+                startTime,
+                endTime,
                 leaveStatus,
                 previousActivity,
             };
@@ -446,6 +455,11 @@ const mapDailyStatus = async (studentList, roleType = 'student') => {
                 nextPendingLeaveApprovals[student._id] = {
                     requestId: leaveRequest?._id || null,
                     leaveType: leaveTypeName,
+                    leaveTypeId: leaveRequest?.leave_type_id?._id || leaveRequest?.leave_type_id || '',
+                    startDate,
+                    endDate,
+                    startTime,
+                    endTime,
                     reason,
                     previousActivity,
                 };

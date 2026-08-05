@@ -43,7 +43,7 @@
                             <div class="flex justify-between">
                                 <span class="text-base-content/70">ชื่อกิจกรรม</span>
                                 <span class="font-semibold text-right break-words">{{ activity.activity_name || '-'
-                                    }}</span>
+                                }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-base-content/70">สถานที่</span>
@@ -60,7 +60,7 @@
                             <div class="flex justify-between">
                                 <span class="text-base-content/70">เวลา</span>
                                 <span class="font-semibold">{{ formatTimeRange(activity.start_time, activity.end_time)
-                                    }}</span>
+                                }}</span>
                             </div>
                         </div>
                     </div>
@@ -107,39 +107,38 @@
                 <!-- <div class="rounded-lg border border-base-300 p-4 bg-base-50">
                     <h4 class="font-semibold mb-3 text-base">การเข้าเรียน</h4> -->
 
-                    <div v-if="groupedAttendance && groupedAttendance.length" class="space-y-4">
-                        <div v-for="(group, gIdx) in groupedAttendance" :key="gIdx"
-                            class="bg-white border border-base-200 rounded-xl p-4 shadow-sm">
-                            <h5 class="font-bold text-gray-800 text-sm mb-3">
-                                บันทึกเวลา - {{ formatDateFull(group.date) }}
-                            </h5>
+                <div v-if="groupedAttendance && groupedAttendance.length" class="space-y-4">
+                    <div v-for="(group, gIdx) in groupedAttendance" :key="gIdx"
+                        class="bg-white border border-base-200 rounded-xl p-4 shadow-sm">
+                        <h5 class="font-bold text-gray-800 text-sm mb-3">
+                            บันทึกเวลา - {{ formatDateFull(group.date) }}
+                        </h5>
 
-                            <div class="flex flex-wrap gap-3">
-                                <div v-for="(item, iIdx) in group.items" :key="iIdx"
-                                    class="border border-base-200 rounded-2xl p-3 bg-white flex flex-col items-center w-36 text-center shadow-xs">
-                                    <div
-                                        class="w-full h-32 bg-gray-100 rounded-xl overflow-hidden mb-2 flex items-center justify-center">
-                                        <img v-if="item.image || item.img || item.photo"
-                                            :src="item.image || item.img || item.photo" alt="รูปถ่ายเวลาเข้า"
-                                            class="w-full h-full object-cover" />
-                                        <span v-else class="text-xs text-gray-400">รูปถ่ายเวลาเข้า</span>
-                                    </div>
-
-                                    <span class="text-blue-600 font-bold text-base">
-                                        {{ formatScanTime(item.time || item.timeStamp) }}
-                                    </span>
-
-                                    <span class="text-[11px] text-gray-400 mt-0.5">
-                                        ความเหมือน: {{ item.similarity !== undefined ? `${item.similarity}%` : '0%' }}
-                                    </span>
+                        <div class="flex flex-wrap gap-3">
+                            <div v-for="(item, iIdx) in group.items" :key="iIdx"
+                                class="border border-base-200 rounded-2xl p-3 bg-white flex flex-col items-center w-36 text-center shadow-xs">
+                                <div
+                                    class="w-full h-32 bg-gray-100 rounded-xl overflow-hidden mb-2 flex items-center justify-center">
+                                    <img v-if="item.imageUrl" :src="getAttendanceImage(item.imageUrl)"
+                                        alt="รูปถ่ายเวลาเข้า" class="w-full h-full object-cover" />
+                                    <span v-else class="text-xs text-gray-400">รูปถ่ายเวลาเข้า</span>
                                 </div>
+
+                                <span class="text-blue-600 font-bold text-base">
+                                    {{ formatScanTime(item.time || item.timeStamp) }}
+                                </span>
+
+                                <span class="text-[11px] text-gray-400 mt-0.5">
+                                    ความเหมือน: {{ item.similarity !== undefined ? `${item.similarity}%` : '0%' }}
+                                </span>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div v-else class="text-center text-gray-400 py-3 text-xs">
-                        ยังไม่มีข้อมูลการเข้าเรียน
-                    </div>
+                <div v-else class="text-center text-gray-400 py-3 text-xs">
+                    ยังไม่มีข้อมูลการเข้าเรียน
+                </div>
                 <!-- </div> -->
             </div>
 
@@ -159,6 +158,7 @@ import { formatGradeClassroomDisplay } from '../../utils/gradeSystem';
 
 const modalRef = ref(null);
 const activity = ref(null);
+const imgBaseUrl = import.meta.env.VITE_IMG_PROFILE_URL || '';
 
 const formatRole = (role) => {
     if (role === 'student') return 'นักเรียน';
@@ -221,6 +221,15 @@ const formatDateRange = (startDate, endDate) => {
     return `${formatDate(startDate)} - ${formatDate(endDate)}`;
 };
 
+const getAttendanceImage = (imageUrl) => {
+    if (!imageUrl) return '';
+    if (String(imageUrl).startsWith('http')) return imageUrl;
+
+    const base = String(imgBaseUrl || '').replace(/\/$/, '');
+    const path = String(imageUrl).startsWith('/') ? String(imageUrl) : `/${imageUrl}`;
+    return `${base}${path}`;
+};
+
 const groupedAttendance = computed(() => {
     if (!activity.value?.attendance || !Array.isArray(activity.value.attendance)) {
         return [];
@@ -237,6 +246,7 @@ const groupedAttendance = computed(() => {
                 }
                 groups[dateKey].push({
                     ...st,
+                    imageUrl: st.imageUrl || att.imageUrl || st.image || st.img || st.photo || att.image || att.img,
                     image: st.image || st.img || st.photo || att.image || att.img,
                     deviceId: st.deviceId || st.sn || st.device_id || att.deviceId || att.sn,
                     similarity: st.similarity ?? att.similarity ?? 0

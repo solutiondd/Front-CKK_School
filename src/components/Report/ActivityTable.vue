@@ -39,7 +39,8 @@
                         <td class="text-xs min-[503px]:text-sm">{{ formatClassroomDisplay(activity.user_id) }}</td>
                         <td class="hidden min-[560px]:table-cell">{{ activity.activity_name || '-' }}</td>
                         <td class="hidden md:table-cell">
-                            {{ formatDate(activity.activity_date_start || activity.activity_date || activity.date) }}
+                            {{ formatDateRangeShort(activity.activity_date_start || activity.activity_date ||
+                                activity.date, activity.activity_date_end || activity.activity_date || activity.date) }}
                             <span v-if="activity.start_time" class="text-xs text-gray-500 block">
                                 ({{ formatTimeRange(activity.start_time, activity.end_time) }})
                             </span>
@@ -226,6 +227,34 @@ const formatDate = (date) => {
         month: 'short',
         year: 'numeric',
     }).format(d);
+};
+
+const formatDateShort = (date) => {
+    if (!date) return '-';
+    const d = new Date(date);
+    return new Intl.DateTimeFormat('th-TH', {
+        day: '2-digit',
+        month: 'short',
+    }).format(d);
+};
+
+const formatDateRangeShort = (startDate, endDate) => {
+    if (!startDate && !endDate) return '-';
+
+    const start = startDate || endDate;
+    const end = endDate || startDate;
+    if (!start || !end) return '-';
+
+    const startShort = formatDateShort(start);
+    const endShort = formatDateShort(end);
+    const startFull = formatDate(start);
+    const endFull = formatDate(end);
+
+    if (startFull === endFull) {
+        return startFull;
+    }
+
+    return `${startShort} - ${endShort}`;
 };
 
 const getValidAttendance = (req) => {

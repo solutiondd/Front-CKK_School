@@ -65,7 +65,7 @@
                     </select>
                 </div>
 
-                <div v-if="residentRole !== 'teacher'" class="form-control">
+                <!-- <div v-if="residentRole !== 'teacher'" class="form-control">
                     <label class="label py-1">
                         <span class="label-text text-sm font-medium">ประเภท</span>
                     </label>
@@ -74,7 +74,7 @@
                         <option value="student">นักเรียน</option>
                         <option value="teacher">ครู</option>
                     </select>
-                </div>
+                </div> -->
 
                 <div v-if="residentRole === 'teacher'"
                     class="form-control flex justify-end items-center md:items-end md:col-start-2 xl:col-start-4 xl:col-span-1">

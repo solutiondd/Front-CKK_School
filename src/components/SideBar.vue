@@ -420,7 +420,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                                <span>ขาดเรียน/ขาดงาน</span>
+                                <span>ขาดเรียน</span>
                             </router-link>
                         </li>
                         <li v-if="auth.user?.role !== 'teacher'">

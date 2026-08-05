@@ -15,7 +15,7 @@
                     <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
                 </form>
                 <h3 class="font-bold text-lg mb-4">รายการเข้าเรียน{{ attendanceRole === 'teacher' ? 'ครู' : 'นักเรียน'
-                    }} วันที่ {{ displayDate }}</h3>
+                }} วันที่ {{ displayDate }}</h3>
                 <div v-if="attendanceRole === 'student'">
                     <Attendance :role="'student'" :date="selectedDate" v-if="residentRole !== 'teacher'" />
                     <Attendance :role="'student'" :date="selectedDate" v-else :fixed-grade="localGrade"
@@ -65,8 +65,8 @@
                 <form method="dialog">
                     <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
                 </form>
-                <h3 class="font-bold text-lg mb-4">รายการที่ไม่ได้สแกน{{ missedRole === 'teacher' ? 'ครู' : 'นักเรียน'
-                    }} วันที่
+                <h3 class="font-bold text-lg mb-4">รายการที่ขาด{{ missedRole === 'teacher' ? 'ครู' : 'นักเรียน'
+                }} วันที่
                     {{ displayDate }}</h3>
 
                 <MissedTable :data="missedData" :pagination="missedPagination" :hide-export="true"
@@ -78,7 +78,7 @@
             </form>
         </dialog>
 
-        <dialog ref="leaveModal" class="modal">
+        <dialog ref="leaveModal" class="modal" @close="handleLeaveModalClose">
             <div class="modal-box max-w-7xl p-2 min-[481px]:p-6">
                 <form method="dialog">
                     <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
@@ -90,7 +90,7 @@
                     เนื่องจากบางคนลาในระบบไว้แต่ยังมาเรียน/สแกนเข้าเรียนได้
                 </p>
 
-                <LeaveRequest :filters="leaveFilters" :hide-export="true" />
+                <LeaveRequest v-if="leaveTableVisible" :filters="leaveFilters" :hide-export="true" />
             </div>
             <form method="dialog" class="modal-backdrop">
                 <button>close</button>
@@ -163,7 +163,7 @@
                         <h4 class="card-title">นักเรียน</h4>
                         <div class="stats stats-vertical lg:stats-horizontal bg-base-100 w-full student-bg">
                             <div class="stat relative">
-                                <div class="stat-title">เข้า</div>
+                                <div class="stat-title">ตรงเวลา</div>
                                 <div class="stat-value text-primary">{{ student.total - student.late }}</div>
                                 <div class="stat-desc absolute bottom-2 right-2">
                                     <button @click="showAttendanceTable" class="btn btn-xs btn-primary btn-plain">
@@ -199,7 +199,7 @@
                                 </div>
                             </div>
                             <div class="stat relative border-l pl-4">
-                                <div class="stat-title">ไม่ได้สแกน</div>
+                                <div class="stat-title">ขาด</div>
                                 <div class="stat-value text-error">{{ studentAbsent }}</div>
                                 <div class="stat-desc absolute bottom-2 right-2">
                                     <button @click="showStudentMissedTable" class="btn btn-xs btn-error btn-plain">
@@ -218,7 +218,7 @@
                         <h4 class="card-title">ครู</h4>
                         <div class="stats stats-vertical lg:stats-horizontal bg-base-100 w-full teacher-bg">
                             <div class="stat relative">
-                                <div class="stat-title">เข้า</div>
+                                <div class="stat-title">ตรงเวลา</div>
                                 <div class="stat-value text-secondary">{{ teacher.total - teacher.late }}</div>
                                 <div class="stat-desc absolute bottom-2 right-2">
                                     <button @click="showTeacherAttendanceTable"
@@ -237,7 +237,7 @@
                                 </div>
                             </div>
                             <div class="stat group relative border-l pl-4" ref="teacherAbsentStatRef">
-                                <div class="stat-title">ไม่ได้สแกน</div>
+                                <div class="stat-title">ขาด</div>
                                 <div class="stat-value text-error">{{ teacherAbsent }}</div>
                                 <div class="stat-desc absolute bottom-2 right-2">
                                     <button @click="showTeacherMissedTable" class="btn btn-xs btn-error btn-plain">
@@ -268,7 +268,7 @@
                         <h4 class="card-title">นักเรียน</h4>
                         <div class="stats stats-vertical lg:stats-horizontal bg-base-100 w-full">
                             <div class="stat relative">
-                                <div class="stat-title">เข้า</div>
+                                <div class="stat-title">ตรงเวลา</div>
                                 <div class="stat-value text-primary">{{ student.total - student.late }}</div>
                                 <div class="stat-desc absolute bottom-2 right-2">
                                     <button @click="showAttendanceTable" class="btn btn-xs btn-primary btn-plain">
@@ -304,7 +304,7 @@
                                 </div>
                             </div>
                             <div class="stat relative border-l pl-4">
-                                <div class="stat-title">ไม่ได้สแกน</div>
+                                <div class="stat-title">ขาด</div>
                                 <div class="stat-value text-error">{{ studentAbsent }}</div>
                                 <div class="stat-desc absolute bottom-2 right-2">
                                     <button @click="showStudentMissedTable" class="btn btn-xs btn-error btn-plain">
@@ -366,6 +366,7 @@ const missedModal = ref(null)
 const leaveModal = ref(null)
 const activityModal = ref(null)
 const activityTableVisible = ref(false)
+const leaveTableVisible = ref(false)
 const attendanceData = ref([])
 const attendancePage = ref(1)
 const attendanceTotalItems = ref(0)
@@ -766,6 +767,7 @@ async function showTeacherMissedTable() {
 
 function showStudentLeaveTable() {
     leaveRole.value = 'student'
+    leaveTableVisible.value = true
     leaveModal.value?.showModal()
 }
 
@@ -776,6 +778,10 @@ function showStudentActivityTable() {
 
 function handleActivityModalClose() {
     activityTableVisible.value = false
+}
+
+function handleLeaveModalClose() {
+    leaveTableVisible.value = false
 }
 
 function handleLatePageChange(page) {
