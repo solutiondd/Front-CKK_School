@@ -58,12 +58,12 @@
                             <div class="flex justify-between">
                                 <span class="text-base-content/70">ช่วงการลา</span>
                                 <span class="font-semibold">{{ formatDateRange(request.start_date, request.end_date)
-                                }}</span>
+                                    }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-base-content/70">เวลา</span>
                                 <span class="font-semibold">{{ formatTimeDisplay(request.start_time, request.end_time)
-                                }}</span>
+                                    }}</span>
                             </div>
                         </div>
                     </div>
@@ -109,10 +109,18 @@
                     </h4>
 
                     <div v-if="filteredAttendance.length > 0" class="flex flex-wrap gap-4">
-                        <div v-for="att in filteredAttendance" :key="att._id"
+                        <div v-for="(att, idx) in filteredAttendance" :key="att._id || idx"
                             class="w-36 bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm flex flex-col items-center p-2 text-center">
-                            <img :src="getAttendanceImage(att.imageUrl)" alt="รูปถ่ายเวลาเข้า"
-                                class="w-full h-32 object-cover rounded-md mb-2 bg-slate-100" />
+                            <div
+                                class="w-full h-32 object-cover rounded-md mb-2 bg-slate-100 flex items-center justify-center overflow-hidden">
+                                <img v-if="att.imageUrl" :src="getAttendanceImage(att.imageUrl)" alt="รูปถ่ายเวลาเข้า"
+                                    class="w-full h-32 object-cover" @error="imageErrorHandler(idx)"
+                                    v-show="!imageError[idx]" />
+                                <span v-if="!att.imageUrl || imageError[idx]"
+                                    class="text-4xl font-bold text-blue-700 select-none">
+                                    {{ getInitials(request.user_id?.name) }}
+                                </span>
+                            </div>
                             <div class="text-blue-600 font-bold text-base">
                                 {{ att.time }}
                             </div>
@@ -142,12 +150,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import { formatGradeClassroomDisplay } from '../../utils/gradeSystem';
 
 const modalRef = ref(null);
 const request = ref(null);
 const imgBaseUrl = import.meta.env.VITE_IMG_PROFILE_URL || '';
+const imageError = reactive({});
 
 const formatRole = (role) => {
     if (role === 'student') return 'นักเรียน';
@@ -283,8 +292,21 @@ const getAttendanceImage = (imageUrl) => {
     return `${base}${path}`;
 };
 
+const imageErrorHandler = (key) => {
+    imageError[key] = true;
+};
+
+const getInitials = (name) => {
+    if (!name) return '-';
+    const parts = String(name).trim().split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`;
+    if (parts.length === 1) return parts[0][0];
+    return '-';
+};
+
 const openModal = (data) => {
     request.value = data;
+    Object.keys(imageError).forEach((k) => delete imageError[k]);
     modalRef.value?.showModal();
 };
 

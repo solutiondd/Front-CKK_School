@@ -43,7 +43,7 @@
                             <div class="flex justify-between">
                                 <span class="text-base-content/70">ชื่อกิจกรรม</span>
                                 <span class="font-semibold text-right break-words">{{ activity.activity_name || '-'
-                                }}</span>
+                                    }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-base-content/70">สถานที่</span>
@@ -60,7 +60,7 @@
                             <div class="flex justify-between">
                                 <span class="text-base-content/70">เวลา</span>
                                 <span class="font-semibold">{{ formatTimeRange(activity.start_time, activity.end_time)
-                                }}</span>
+                                    }}</span>
                             </div>
                         </div>
                     </div>
@@ -120,8 +120,13 @@
                                 <div
                                     class="w-full h-32 bg-gray-100 rounded-xl overflow-hidden mb-2 flex items-center justify-center">
                                     <img v-if="item.imageUrl" :src="getAttendanceImage(item.imageUrl)"
-                                        alt="รูปถ่ายเวลาเข้า" class="w-full h-full object-cover" />
-                                    <span v-else class="text-xs text-gray-400">รูปถ่ายเวลาเข้า</span>
+                                        alt="รูปถ่ายเวลาเข้า" class="w-full h-full object-cover"
+                                        @error="imageErrorHandler(`${gIdx}-${iIdx}`)"
+                                        v-show="!imageError[`${gIdx}-${iIdx}`]" />
+                                    <span v-if="!item.imageUrl || imageError[`${gIdx}-${iIdx}`]"
+                                        class="text-4xl font-bold text-blue-700 select-none">
+                                        {{ getInitials(activity.user_id?.name) }}
+                                    </span>
                                 </div>
 
                                 <span class="text-blue-600 font-bold text-base">
@@ -153,12 +158,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import { formatGradeClassroomDisplay } from '../../utils/gradeSystem';
 
 const modalRef = ref(null);
 const activity = ref(null);
 const imgBaseUrl = import.meta.env.VITE_IMG_PROFILE_URL || '';
+const imageError = reactive({});
 
 const formatRole = (role) => {
     if (role === 'student') return 'นักเรียน';
@@ -230,6 +236,18 @@ const getAttendanceImage = (imageUrl) => {
     return `${base}${path}`;
 };
 
+const imageErrorHandler = (key) => {
+    imageError[key] = true;
+};
+
+const getInitials = (name) => {
+    if (!name) return '-';
+    const parts = String(name).trim().split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`;
+    if (parts.length === 1) return parts[0][0];
+    return '-';
+};
+
 const groupedAttendance = computed(() => {
     if (!activity.value?.attendance || !Array.isArray(activity.value.attendance)) {
         return [];
@@ -287,6 +305,7 @@ const formatScanTime = (timeStr) => {
 
 const openModal = (data) => {
     activity.value = data;
+    Object.keys(imageError).forEach((k) => delete imageError[k]);
     modalRef.value?.showModal();
 };
 
