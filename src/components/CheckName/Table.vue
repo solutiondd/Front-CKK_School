@@ -87,7 +87,7 @@
                                         <button type="button" :disabled="autoSaving"
                                             class="max-[444px]:text-xs max-[444px]:px-2"
                                             @click.stop.prevent="markLate(student._id)">
-                                            <svg class="w-4 h-4 max-[444px]:w-3.5 max-[444px]:h-3.5 text-warning"
+                                            <svg class="w-4 h-4 max-[444px]:w-3.5 max-[444px]:h-3.5 text-black"
                                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -102,7 +102,8 @@
                                             <svg class="w-4 h-4 max-[444px]:w-3.5 max-[444px]:h-3.5 text-warning"
                                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                </path>
                                             </svg>
                                             ลา
                                         </button>
@@ -241,7 +242,7 @@
                                 มา
                             </span>
                             <span v-else-if="localAttendanceData[student._id]?.status === 'late'"
-                                class="badge badge-warning gap-2 max-[444px]:badge-xs">
+                                class="badge bg-black text-white border-black gap-2 max-[444px]:badge-xs">
                                 สาย
                             </span>
                             <div v-else-if="localAttendanceData[student._id]?.status === 'leave'"
@@ -347,7 +348,7 @@
                                     <li>
                                         <button type="button" class="max-[444px]:text-xs max-[444px]:px-2"
                                             @click.stop.prevent="markLate(student._id)">
-                                            <svg class="w-4 h-4 max-[444px]:w-3.5 max-[444px]:h-3.5 text-warning"
+                                            <svg class="w-4 h-4 max-[444px]:w-3.5 max-[444px]:h-3.5 text-black"
                                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -361,7 +362,8 @@
                                             <svg class="w-4 h-4 max-[444px]:w-3.5 max-[444px]:h-3.5 text-warning"
                                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                </path>
                                             </svg>
                                             ลา
                                         </button>
@@ -869,7 +871,7 @@ const getDraftLabel = (studentId) => {
 const getDraftBadgeClass = (studentId) => {
     const action = getDraftChange(studentId)?.action;
     if (action === 'present') return 'badge-success';
-    if (action === 'late') return 'badge-warning';
+    if (action === 'late') return 'bg-black text-white border-black';
     if (action === 'leave') return 'badge-warning';
     if (action === 'activity') return 'badge-info';
     return 'badge-ghost';
@@ -1026,7 +1028,7 @@ const toAttendanceSubmitTime = () => {
 
 const toLateAttendanceSubmitTime = () => {
     const now = new Date();
-    
+
     const cutoffStr = getLateCutoffTime();
     const cutoffSeconds = parseTimeToSeconds(cutoffStr) ?? parseTimeToSeconds(DEFAULT_LATE_CUTOFF_TIME);
 
