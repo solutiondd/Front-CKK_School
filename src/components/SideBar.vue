@@ -337,6 +337,19 @@
                                 <span class="text-sm">จัดการเชื่อมต่ออุปกรณ์</span>
                             </router-link>
                         </li>
+
+                        <li v-if="auth.user?.role == 'super admin' || auth.user?.role == 'admin'">
+                            <router-link to="/home/monitor"
+                                class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-warning/20 transition-colors"
+                                :class="submenuClass('/home/monitor')">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                <span class="text-sm">มอนิเตอร์</span>
+                            </router-link>
+                        </li>
                     </ul>
                 </li>
 
@@ -528,7 +541,7 @@ const isStructureActive = computed(() => {
 })
 
 const isEquipmentActive = computed(() => {
-    return route.path === '/home/device' || route.path === '/home/model'
+    return route.path === '/home/device' || route.path === '/home/model' || route.path === '/home/monitor'
 })
 
 const isReportActive = computed(() => {

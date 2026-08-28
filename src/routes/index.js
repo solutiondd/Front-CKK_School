@@ -21,6 +21,7 @@ const CheckName = () => import("../views/Admin/CheckName.vue");
 const Leave = () => import("../views/Admin/Leave.vue");
 const UniformInspection = () => import("../views/Admin/UniformInspection.vue");
 const AllowanceSetting = () => import("../views/Admin/AllowanceSetting.vue");
+const Monitor = () => import("../views/Admin/Monitor.vue");
 
 const LeaveReport = () => import("../views/Admin/report/LeaveReq.vue");
 const AtRisk = () => import("../views/Admin/report/AtRisk.vue");
@@ -174,6 +175,11 @@ const routes = [
         path: "allowance-setting",
         name: "AllowanceSetting",
         component: AllowanceSetting,
+      },
+      {
+        path: "monitor",
+        name: "Monitor",
+        component: Monitor,
       },
     ],
   },
