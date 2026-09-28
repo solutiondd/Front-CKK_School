@@ -31,7 +31,9 @@ const MissedReport = () => import("../views/Admin/report/Missed.vue");
 const StrangerReport = () => import("../views/Admin/report/Stranger.vue");
 const StatsView = () => import("../views/Admin/report/StatsView.vue");
 const Activity = () => import("../views/Admin/report/Activity.vue");
-const UniformInspectionReport = () => import("../views/Admin/report/UniformInspectionReport.vue");
+const UniformInspectionReport = () =>
+  import("../views/Admin/report/UniformInspectionReport.vue");
+const Summary = () => import("../views/Admin/report/Summary.vue");
 
 const routes = [
   { path: "/", name: "login", component: Login },
@@ -170,6 +172,11 @@ const routes = [
         path: "report/uniform-inspection",
         name: "UniformInspectionReport",
         component: UniformInspectionReport,
+      },
+      {
+        path: "report/summary",
+        name: "SummaryReport",
+        component: Summary,
       },
       {
         path: "allowance-setting",

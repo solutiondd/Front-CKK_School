@@ -169,9 +169,9 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { getPrefixOptions } from '../../utils/prefixSystem'
+import { getTeacherPrefixOptions } from '../../utils/prefixSystem'
 
-const prefixOptions = computed(() => getPrefixOptions())
+const prefixOptions = computed(() => getTeacherPrefixOptions())
 
 const modalRef = ref(null)
 const loading = ref(false)

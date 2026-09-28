@@ -165,7 +165,7 @@
 <script setup>
 import { TeacherService } from '../../api/teacher'
 import { ref, computed } from 'vue'
-import { getPrefixOptions } from '../../utils/prefixSystem'
+import { getTeacherPrefixOptions } from '../../utils/prefixSystem'
 
 const imgProfileUrl = import.meta.env.VITE_IMG_PROFILE_URL;
 const getPictureUrl = (pic) => {
@@ -212,7 +212,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['success'])
-const prefixOptions = computed(() => getPrefixOptions())
+const prefixOptions = computed(() => getTeacherPrefixOptions())
 
 const openModal = async (teacher) => {
     teacherId.value = teacher.id
