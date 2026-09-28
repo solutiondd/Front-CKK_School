@@ -436,7 +436,7 @@
                                 <span>ขาดเรียน</span>
                             </router-link>
                         </li>
-                        <!-- <li>
+                        <li>
                             <router-link to="/home/report/summary"
                                 class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-warning/20 transition-colors text-sm"
                                 :class="submenuClass('/home/report/summary')">
@@ -447,7 +447,7 @@
                                 </svg>
                                 <span>สรุปข้อมูล</span>
                             </router-link>
-                        </li> -->
+                        </li>
                         <li v-if="auth.user?.role !== 'teacher'">
                             <router-link to="/home/report/stranger"
                                 class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-warning/20 transition-colors text-sm"
